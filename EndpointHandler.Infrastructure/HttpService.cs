@@ -22,7 +22,7 @@ namespace EndpointHandler.Infrastructure
         private static bool CheckIfEndpointUriCorrect(string endpointUri)
             => !string.IsNullOrEmpty(endpointUri);
 
-        public Task GetResponseAsync()
-            => _httpClient.GetAsync(_endpointUri);
+        public Task<string> GetResponseAsync()
+            => _httpClient.GetStringAsync(_endpointUri);
     }
 }
