@@ -1,5 +1,7 @@
-﻿using System.Diagnostics;
-using EndpointHandler.WebUI.Models;
+﻿using System.Threading.Tasks;
+using EndpointHandler.Domain;
+using EndpointHandler.Domain.Interfaces.Services;
+using EndpointHandler.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -7,27 +9,37 @@ namespace EndpointHandler.WebUI.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IHttpService _httpService;
+        private readonly IFileService _fileService;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IHttpService httpService, IFileService fileService, ILogger<HomeController> logger)
         {
+            _httpService = httpService;
+            _fileService = fileService;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            string response = await _httpService.TryGetResponseOrTimeout();
+            ApiRecord apiRecord = DeserializeJsonStringIntoApiRecord(response);
+            SaveRecordToFile(apiRecord);
+
+            return View(apiRecord);
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        public async Task<string> GetResponseAndSave()
+            => await _httpService.TryGetResponseOrTimeout();
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        private ApiRecord DeserializeJsonStringIntoApiRecord(string response)
+            => ApiRecordFactory.DeserializeJsonIntoRecord(response);
+        private void SaveRecordToFile(ApiRecord apiRecord)
         {
-            return View(new ErrorViewModel {RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
+            _fileService.AppendLineToFile(apiRecord.ToString());
+
+            _logger.Log(LogLevel.Information,@$"The following result is saved to file:
+'{apiRecord}'");
         }
     }
 }

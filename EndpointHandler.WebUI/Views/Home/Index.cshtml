@@ -1,8 +1,19 @@
-﻿@{
+﻿@model ApiRecord
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+    <div class="text-center">
+        <h1 class="display-4">Welcome! Here is your daily Cat Fact!</h1>
+
+        <div class="card">
+          <div class="card-body">
+              fact: "@Model.Fact"
+              <hr>
+              length: @Model.Length
+          </div>
+        </div>
+
+    </div>
+
