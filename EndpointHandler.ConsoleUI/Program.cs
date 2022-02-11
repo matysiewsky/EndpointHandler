@@ -23,7 +23,6 @@ namespace EndpointHandler.ConsoleUI
             => new ConfigurationBuilder()
                     .AddJsonFile(path: "appsettings.Development.json", optional: false, reloadOnChange: false)
                     .Build();
-
         private static (IHttpService, IFileService) ConfigureServices(IConfiguration configuration)
             => (new HttpService(new HttpClient(), configuration["EndpointToHandle"]),
                 new FileService(configuration["FilePath"]));
@@ -46,7 +45,7 @@ namespace EndpointHandler.ConsoleUI
             }
         }
         private static async Task<string> GetResponseAsString(IHttpService httpService)
-            => await httpService.GetResponseAsync();
+            => await httpService.TryGetResponseOrTimeout();
         private static ApiRecord DeserializeJsonStringIntoApiRecord(string response)
             => ApiRecordFactory.DeserializeJsonIntoRecord(response);
         private static void SaveRecordToFile(IFileService fileService, ApiRecord apiRecord)

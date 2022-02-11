@@ -4,6 +4,6 @@ namespace EndpointHandler.Domain.Interfaces.Services
 {
     public interface IHttpService
     {
-        Task<string> GetResponseAsync();
+        Task<string> TryGetResponseOrTimeout();
     }
 }

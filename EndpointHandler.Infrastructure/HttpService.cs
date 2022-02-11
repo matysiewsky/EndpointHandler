@@ -22,7 +22,18 @@ namespace EndpointHandler.Infrastructure
         private static bool CheckIfEndpointUriCorrect(string endpointUri)
             => !string.IsNullOrEmpty(endpointUri);
 
-        public Task<string> GetResponseAsync()
-            => _httpClient.GetStringAsync(_endpointUri);
+        private Task<string> GetResponseAsync()
+            =>  _httpClient.GetStringAsync(_endpointUri);
+
+        public async Task<string> TryGetResponseOrTimeout()
+        {
+            int timeoutTime = 4000;
+            Task<string> task = GetResponseAsync();
+
+            if (await Task.WhenAny(task, Task.Delay(timeoutTime)) != task)
+                throw new TimeoutException($"Response timeout reached, {timeoutTime} ms.");
+
+            return task.Result;
+        }
     }
 }
